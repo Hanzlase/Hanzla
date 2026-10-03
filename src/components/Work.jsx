@@ -7,7 +7,7 @@ const featuredProjects = [
   {
     title: 'Projectify',
     badge: '★ FYP',
-    image: '/assets/projectify/landing-page.png',
+    image: '/assets/projectify/student-dashboard.png',
     description:
       'Architected a multi-campus FYP lifecycle platform (proposal submission, AI plagiarism detection, panel evaluation, milestone grading) using Next.js 14, Prisma ORM, PostgreSQL, and Socket.IO + Redis for real-time collaboration. Engineered an AI similarity pipeline, panel suggestion engine, and zero-egress Cloudflare R2 client.',
     tech: ['Next.js 14', 'Prisma ORM', 'PostgreSQL', 'Socket.IO', 'Redis', 'Cohere', 'Pinecone', 'Cloudflare R2'],
@@ -15,8 +15,8 @@ const featuredProjects = [
     external: 'https://projectify.up.railway.app/',
     alignment: 'left',
     gallery: [
-      '/assets/projectify/landing-page.png',
       '/assets/projectify/student-dashboard.png',
+      '/assets/projectify/landing-page.png',
       '/assets/projectify/Supervisor-dashboard.png',
       '/assets/projectify/admin-dashboard.png',
       '/assets/projectify/similarity-check-Rag.png',

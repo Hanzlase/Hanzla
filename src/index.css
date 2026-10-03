@@ -2405,65 +2405,366 @@ body.modal-open {
   border-radius: 50%;
 }
 
-/* Slider arrows */
-.media-slider-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(var(--navy-rgb), 0.6);
-  color: var(--white);
+/* Media header with count badge */
+.project-modal-media-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.vertical-carousel-count-hint {
+  font-family: var(--font-mono);
+  font-size: var(--fz-xxs);
+  color: var(--green);
+  background: rgba(100, 255, 218, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+/* ==========================================================================
+   Vertical 3D Cover Flow Carousel
+   ========================================================================== */
+.project-modal-vertical-carousel {
+  position: relative;
+  width: 100%;
+  height: 430px;
+  background: radial-gradient(circle at center, rgba(17, 34, 64, 0.8) 0%, rgba(10, 25, 47, 0.98) 100%);
+  border-radius: 12px;
+  overflow: hidden;
   border: 1px solid var(--border-default);
-  width: 40px;
-  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  perspective: 1100px;
+  box-shadow: inset 0 2px 24px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+}
+
+.project-modal-vertical-carousel:active {
+  cursor: grabbing;
+}
+
+/* Top and bottom subtle vignette overlays */
+.vertical-carousel-vignette-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 85px;
+  background: linear-gradient(to bottom, rgba(10, 25, 47, 0.98) 0%, rgba(10, 25, 47, 0.6) 55%, transparent 100%);
+  pointer-events: none;
+  z-index: 15;
+}
+
+.vertical-carousel-vignette-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 95px;
+  background: linear-gradient(to top, rgba(10, 25, 47, 0.98) 0%, rgba(10, 25, 47, 0.7) 55%, transparent 100%);
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* 3D Stage */
+.vertical-carousel-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Base Card */
+.vertical-carousel-card {
+  position: absolute;
+  width: calc(100% - 56px);
+  max-width: 480px;
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  transform-origin: center center;
+  will-change: transform, opacity, filter;
+  transition: 
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.55s ease,
+    box-shadow 0.55s ease;
+}
+
+.carousel-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #060e1b;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.vertical-carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.carousel-card-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 25, 47, 0.45);
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+/* Center Card - Active, Large, Crisp */
+.vertical-carousel-card.is-center {
+  transform: translate3d(0, 0, 45px) scale(1);
+  opacity: 1;
+  z-index: 10;
+  filter: brightness(1) contrast(1.02);
+  cursor: default;
+}
+
+.vertical-carousel-card.is-center .carousel-card-inner {
+  border: 1.5px solid rgba(100, 255, 218, 0.55);
+  box-shadow: 
+    0 20px 42px rgba(0, 0, 0, 0.8),
+    0 0 28px rgba(100, 255, 218, 0.2);
+}
+
+/* Upper Card (Offset -1) - Scaled down, translated up, slower feel */
+.vertical-carousel-card.is-upper-1 {
+  transform: translate3d(0, -112px, -30px) scale(0.81) rotateX(-8deg);
+  opacity: 0.55;
+  z-index: 8;
+  filter: brightness(0.65) blur(0.5px);
+  cursor: pointer;
+}
+
+.vertical-carousel-card.is-upper-1:hover {
+  opacity: 0.85;
+  filter: brightness(0.85);
+  transform: translate3d(0, -108px, -20px) scale(0.83) rotateX(-5deg);
+}
+
+.vertical-carousel-card.is-upper-1 .carousel-card-inner {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Lower Card (Offset +1) - Scaled down, translated down */
+.vertical-carousel-card.is-lower-1 {
+  transform: translate3d(0, 112px, -30px) scale(0.81) rotateX(8deg);
+  opacity: 0.55;
+  z-index: 8;
+  filter: brightness(0.65) blur(0.5px);
+  cursor: pointer;
+}
+
+.vertical-carousel-card.is-lower-1:hover {
+  opacity: 0.85;
+  filter: brightness(0.85);
+  transform: translate3d(0, 108px, -20px) scale(0.83) rotateX(5deg);
+}
+
+.vertical-carousel-card.is-lower-1 .carousel-card-inner {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Upper 2 (Offset -2) */
+.vertical-carousel-card.is-upper-2 {
+  transform: translate3d(0, -190px, -90px) scale(0.66) rotateX(-15deg);
+  opacity: 0.18;
+  z-index: 5;
+  filter: brightness(0.4) blur(1.5px);
+  cursor: pointer;
+}
+
+/* Lower 2 (Offset +2) */
+.vertical-carousel-card.is-lower-2 {
+  transform: translate3d(0, 190px, -90px) scale(0.66) rotateX(15deg);
+  opacity: 0.18;
+  z-index: 5;
+  filter: brightness(0.4) blur(1.5px);
+  cursor: pointer;
+}
+
+/* Off-screen hidden cards */
+.vertical-carousel-card.is-hidden-top {
+  transform: translate3d(0, -280px, -150px) scale(0.5);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.vertical-carousel-card.is-hidden-bottom {
+  transform: translate3d(0, 280px, -150px) scale(0.5);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Vertical Up/Down Controls */
+.vertical-carousel-controls {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 25;
+}
+
+.vertical-carousel-arrow {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
+  background: rgba(17, 34, 64, 0.85);
+  border: 1px solid var(--border-default);
+  color: var(--lightest-slate);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(4px);
-  transition: var(--transition);
-  z-index: 5;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(8px);
 }
 
-.media-slider-arrow:hover {
-  background-color: var(--green);
+.vertical-carousel-arrow:hover:not(.disabled) {
+  background: var(--green);
   color: var(--navy);
   border-color: var(--green);
+  transform: scale(1.08);
 }
 
-.media-slider-arrow.prev {
-  left: 15px;
+.vertical-carousel-arrow.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
-.media-slider-arrow.next {
-  right: 15px;
-}
-
-.media-slider-dots {
+/* Vertical Navigation Track (dots) */
+.vertical-carousel-nav-track {
   position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  gap: 8px;
-  z-index: 5;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 25;
+  padding: 6px 3px;
+  background: rgba(10, 25, 47, 0.55);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  max-height: 220px;
+  overflow-y: auto;
 }
 
-.slider-dot {
-  width: 8px;
-  height: 8px;
+.vertical-carousel-nav-track::-webkit-scrollbar {
+  display: none;
+}
+
+.vertical-carousel-nav-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.4);
-  border: 0;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
   padding: 0;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.slider-dot.active {
-  background-color: var(--green);
-  width: 18px;
-  border-radius: 4px;
+.vertical-carousel-nav-dot:hover {
+  background: rgba(100, 255, 218, 0.7);
+  transform: scale(1.4);
+}
+
+.vertical-carousel-nav-dot.active {
+  background: var(--green);
+  height: 14px;
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(100, 255, 218, 0.6);
+}
+
+/* Bottom Footer Bar */
+.vertical-carousel-footer-bar {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.vertical-carousel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(10, 25, 47, 0.88);
+  border: 1px solid var(--border-default);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+  max-width: 75%;
+}
+
+.carousel-index-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.carousel-image-name {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--lightest-slate);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carousel-scroll-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--slate);
+  opacity: 0.75;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 600px) {
+  .carousel-scroll-hint {
+    display: none;
+  }
+  .project-modal-vertical-carousel {
+    height: 360px;
+  }
+  .vertical-carousel-card.is-upper-1 {
+    transform: translate3d(0, -90px, -25px) scale(0.8) rotateX(-6deg);
+  }
+  .vertical-carousel-card.is-lower-1 {
+    transform: translate3d(0, 90px, -25px) scale(0.8) rotateX(6deg);
+  }
 }
 
 /* Info Section styling */

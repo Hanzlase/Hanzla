@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { FiGithub, FiExternalLink, FiX, FiChevronLeft, FiChevronRight, FiKey, FiAlertCircle, FiBriefcase, FiMail, FiLock } from 'react-icons/fi';
+import { FiGithub, FiExternalLink, FiX, FiChevronUp, FiChevronDown, FiKey, FiAlertCircle, FiBriefcase, FiMail, FiLock } from 'react-icons/fi';
 
 const getYouTubeEmbedUrl = (url) => {
   if (!url) return null;
@@ -12,10 +12,42 @@ const getYouTubeEmbedUrl = (url) => {
   return null;
 };
 
+const getImageTitle = (src) => {
+  if (!src) return '';
+  const filename = src.split('/').pop().replace(/\.[^/.]+$/, '');
+  return filename
+    .replace(/[-_]+/g, ' ')
+    .replace(/\bRag\b/gi, 'RAG')
+    .replace(/\bFyp\b/gi, 'FYP')
+    .replace(/\bAi\b/gi, 'AI')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
 const ProjectModal = ({ project, onClose }) => {
-  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [activePicIndex, setActivePicIndex] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
   const modalRef = useRef(null);
+  const carouselRef = useRef(null);
+  const touchStartY = useRef(0);
+  const isDragging = useRef(false);
+
+  // Compile picture items (primary image + gallery images)
+  const pictureItems = [];
+  if (project?.image) {
+    pictureItems.push(project.image);
+  }
+  if (project?.gallery && project.gallery.length > 0) {
+    project.gallery.forEach((img) => {
+      if (img !== project.image && !pictureItems.includes(img)) {
+        pictureItems.push(img);
+      }
+    });
+  }
+
+  // Reset active image index whenever the opened project changes
+  useEffect(() => {
+    setActivePicIndex(0);
+  }, [project]);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -36,43 +68,86 @@ const ProjectModal = ({ project, onClose }) => {
     };
   }, [project]);
 
-  // Handle ESC key press
+  // Handle ESC and Arrow keys
+  const handlePrevPic = useCallback(() => {
+    setActivePicIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
+
+  const handleNextPic = useCallback(() => {
+    setActivePicIndex((prev) => (prev < pictureItems.length - 1 ? prev + 1 : prev));
+  }, [pictureItems.length]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         handleClose();
+      } else if (e.key === 'ArrowDown' && pictureItems.length > 1) {
+        e.preventDefault();
+        handleNextPic();
+      } else if (e.key === 'ArrowUp' && pictureItems.length > 1) {
+        e.preventDefault();
+        handlePrevPic();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [handleNextPic, handlePrevPic, pictureItems.length]);
+
+  // Smooth mouse-wheel scrolling directly inside the vertical carousel
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el || pictureItems.length <= 1) return;
+
+    let wheelAccumulator = 0;
+    let lastWheelTime = 0;
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const now = Date.now();
+      wheelAccumulator += e.deltaY;
+
+      // Throttle wheel ticks for smooth 1-by-1 snapping transitions
+      if (Math.abs(wheelAccumulator) >= 30 && now - lastWheelTime > 180) {
+        if (wheelAccumulator > 0) {
+          setActivePicIndex((prev) => Math.min(prev + 1, pictureItems.length - 1));
+        } else {
+          setActivePicIndex((prev) => Math.max(prev - 1, 0));
+        }
+        wheelAccumulator = 0;
+        lastWheelTime = now;
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, [pictureItems.length]);
+
+  // Touch and drag swipe handlers
+  const handleTouchStart = (e) => {
+    touchStartY.current = e.touches ? e.touches[0].clientY : e.clientY;
+    isDragging.current = true;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const endY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    const diff = touchStartY.current - endY;
+
+    if (Math.abs(diff) > 35) {
+      if (diff > 0) {
+        handleNextPic();
+      } else {
+        handlePrevPic();
+      }
+    }
+  };
 
   if (!project) return null;
-
-  // Compile picture items (primary image + gallery images)
-  const pictureItems = [];
-  if (project.image) {
-    pictureItems.push(project.image);
-  }
-  if (project.gallery && project.gallery.length > 0) {
-    project.gallery.forEach((img) => {
-      if (img !== project.image) {
-        pictureItems.push(img);
-      }
-    });
-  }
-
-  const [activePicIndex, setActivePicIndex] = useState(0);
-
-  const handlePrevPic = () => {
-    setActivePicIndex((prev) => (prev === 0 ? pictureItems.length - 1 : prev - 1));
-  };
-
-  const handleNextPic = () => {
-    setActivePicIndex((prev) => (prev === pictureItems.length - 1 ? 0 : prev + 1));
-  };
-
-
 
   return createPortal(
     <div
@@ -123,40 +198,123 @@ const ProjectModal = ({ project, onClose }) => {
               );
             })()}
 
-            {/* Picture Slider Section */}
-            {pictureItems.length > 0 ? (
+            {/* Vertical 3D Cover Flow Gallery Section */}
+            {pictureItems.length > 1 ? (
               <div className="project-modal-pictures-section">
-                <p className="project-modal-media-label">Screenshots & Gallery</p>
+                <div className="project-modal-media-header">
+                  <p className="project-modal-media-label">Interactive Gallery</p>
+                  <span className="vertical-carousel-count-hint">
+                    {activePicIndex + 1} / {pictureItems.length}
+                  </span>
+                </div>
+                <div
+                  className="project-modal-vertical-carousel"
+                  ref={carouselRef}
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                  onMouseDown={handleTouchStart}
+                  onMouseUp={handleTouchEnd}
+                >
+                  <div className="vertical-carousel-vignette-top" />
+                  <div className="vertical-carousel-vignette-bottom" />
+
+                  {/* Top & Bottom Quick Nav Controls */}
+                  <div className="vertical-carousel-controls">
+                    <button
+                      className={`vertical-carousel-arrow up ${activePicIndex === 0 ? 'disabled' : ''}`}
+                      onClick={handlePrevPic}
+                      disabled={activePicIndex === 0}
+                      aria-label="Previous screenshot (scroll up)"
+                      title="Scroll up (Previous)"
+                    >
+                      <FiChevronUp size={18} />
+                    </button>
+                    <button
+                      className={`vertical-carousel-arrow down ${activePicIndex === pictureItems.length - 1 ? 'disabled' : ''}`}
+                      onClick={handleNextPic}
+                      disabled={activePicIndex === pictureItems.length - 1}
+                      aria-label="Next screenshot (scroll down)"
+                      title="Scroll down (Next)"
+                    >
+                      <FiChevronDown size={18} />
+                    </button>
+                  </div>
+
+                  {/* 3D Stacked Carousel Stage */}
+                  <div className="vertical-carousel-stage">
+                    {pictureItems.map((imgSrc, idx) => {
+                      const diff = idx - activePicIndex;
+                      let cardClass = 'vertical-carousel-card';
+                      if (diff === 0) cardClass += ' is-center';
+                      else if (diff === -1) cardClass += ' is-upper-1';
+                      else if (diff === 1) cardClass += ' is-lower-1';
+                      else if (diff === -2) cardClass += ' is-upper-2';
+                      else if (diff === 2) cardClass += ' is-lower-2';
+                      else if (diff < -2) cardClass += ' is-hidden-top';
+                      else cardClass += ' is-hidden-bottom';
+
+                      return (
+                        <div
+                          key={idx}
+                          className={cardClass}
+                          onClick={() => {
+                            if (diff !== 0) setActivePicIndex(idx);
+                          }}
+                          role="button"
+                          tabIndex={diff === 0 ? 0 : -1}
+                          aria-label={getImageTitle(imgSrc)}
+                        >
+                          <div className="carousel-card-inner">
+                            <img
+                              src={imgSrc}
+                              alt={`${project.title} - ${getImageTitle(imgSrc)}`}
+                              className="vertical-carousel-image"
+                              loading="lazy"
+                            />
+                            {diff !== 0 && <div className="carousel-card-scrim" />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Vertical Navigation Bar on the right */}
+                  <div className="vertical-carousel-nav-track">
+                    {pictureItems.map((_, idx) => (
+                      <button
+                        key={idx}
+                        className={`vertical-carousel-nav-dot ${idx === activePicIndex ? 'active' : ''}`}
+                        onClick={() => setActivePicIndex(idx)}
+                        aria-label={`Jump to screenshot ${idx + 1}`}
+                        title={getImageTitle(pictureItems[idx])}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Bottom Footer Bar: Badge and Hint */}
+                  <div className="vertical-carousel-footer-bar">
+                    <div className="vertical-carousel-tag">
+                      <span className="carousel-index-badge">
+                        {String(activePicIndex + 1).padStart(2, '0')} / {String(pictureItems.length).padStart(2, '0')}
+                      </span>
+                      <span className="carousel-image-name">{getImageTitle(pictureItems[activePicIndex])}</span>
+                    </div>
+                    <div className="carousel-scroll-hint">
+                      <span>Scroll to explore</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : pictureItems.length === 1 ? (
+              <div className="project-modal-pictures-section">
+                <p className="project-modal-media-label">Screenshots</p>
                 <div className="project-modal-pictures-wrapper">
                   <img 
                     className="project-modal-image" 
                     style={{ objectFit: project.imageFit === 'cover' ? 'cover' : 'contain' }}
-                    src={pictureItems[activePicIndex]} 
+                    src={pictureItems[0]} 
                     alt={`${project.title} preview`} 
                   />
-
-                  {/* Slider Controls */}
-                  {pictureItems.length > 1 && (
-                    <>
-                      <button className="media-slider-arrow prev" onClick={handlePrevPic} aria-label="Previous image">
-                        <FiChevronLeft size={24} />
-                      </button>
-                      <button className="media-slider-arrow next" onClick={handleNextPic} aria-label="Next image">
-                        <FiChevronRight size={24} />
-                      </button>
-
-                      <div className="media-slider-dots">
-                        {pictureItems.map((_, idx) => (
-                          <button
-                            key={idx}
-                            className={`slider-dot ${idx === activePicIndex ? 'active' : ''}`}
-                            onClick={() => setActivePicIndex(idx)}
-                            aria-label={`Go to slide ${idx + 1}`}
-                          ></button>
-                        ))}
-                      </div>
-                    </>
-                  )}
                 </div>
               </div>
             ) : (
