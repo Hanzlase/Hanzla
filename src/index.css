@@ -2417,20 +2417,20 @@ body.modal-open {
   font-family: var(--font-mono);
   font-size: var(--fz-xxs);
   color: var(--green);
-  background: rgba(100, 255, 218, 0.08);
+  background: var(--green-tint);
   padding: 2px 8px;
   border-radius: 12px;
-  border: 1px solid rgba(100, 255, 218, 0.2);
+  border: 1px solid var(--border-default);
 }
 
 /* ==========================================================================
-   Vertical 3D Cover Flow Carousel
+   Vertical 3D Cover Flow Carousel (Theme-Adaptive)
    ========================================================================== */
 .project-modal-vertical-carousel {
   position: relative;
   width: 100%;
   height: 430px;
-  background: radial-gradient(circle at center, rgba(17, 34, 64, 0.8) 0%, rgba(10, 25, 47, 0.98) 100%);
+  background: radial-gradient(circle at center, var(--lightest-navy) 0%, var(--navy) 100%);
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border-default);
@@ -2439,7 +2439,7 @@ body.modal-open {
   justify-content: center;
   user-select: none;
   perspective: 1100px;
-  box-shadow: inset 0 2px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 2px 16px var(--navy-shadow);
   cursor: grab;
 }
 
@@ -2447,14 +2447,14 @@ body.modal-open {
   cursor: grabbing;
 }
 
-/* Top and bottom subtle vignette overlays */
+/* Top and bottom subtle vignette overlays - dynamically matched to theme */
 .vertical-carousel-vignette-top {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 85px;
-  background: linear-gradient(to bottom, rgba(10, 25, 47, 0.98) 0%, rgba(10, 25, 47, 0.6) 55%, transparent 100%);
+  background: linear-gradient(to bottom, rgba(var(--navy-rgb), 0.95) 0%, rgba(var(--navy-rgb), 0.5) 60%, transparent 100%);
   pointer-events: none;
   z-index: 15;
 }
@@ -2465,7 +2465,7 @@ body.modal-open {
   left: 0;
   right: 0;
   height: 95px;
-  background: linear-gradient(to top, rgba(10, 25, 47, 0.98) 0%, rgba(10, 25, 47, 0.7) 55%, transparent 100%);
+  background: linear-gradient(to top, rgba(var(--navy-rgb), 0.95) 0%, rgba(var(--navy-rgb), 0.5) 60%, transparent 100%);
   pointer-events: none;
   z-index: 15;
 }
@@ -2503,8 +2503,8 @@ body.modal-open {
   height: 100%;
   border-radius: 10px;
   overflow: hidden;
-  background-color: #060e1b;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  background-color: var(--light-navy);
+  box-shadow: 0 12px 28px var(--navy-shadow);
 }
 
 .vertical-carousel-image {
@@ -2517,12 +2517,16 @@ body.modal-open {
 .carousel-card-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(10, 25, 47, 0.45);
+  background: rgba(var(--navy-rgb), 0.38);
   pointer-events: none;
   transition: background 0.3s ease;
 }
 
-/* Center Card - Active, Large, Crisp */
+.vertical-carousel-card:hover .carousel-card-scrim {
+  background: rgba(var(--navy-rgb), 0.15);
+}
+
+/* Center Card - Active, Large, Crisp, Theme Accent Border */
 .vertical-carousel-card.is-center {
   transform: translate3d(0, 0, 45px) scale(1);
   opacity: 1;
@@ -2532,66 +2536,82 @@ body.modal-open {
 }
 
 .vertical-carousel-card.is-center .carousel-card-inner {
-  border: 1.5px solid rgba(100, 255, 218, 0.55);
+  border: 2px solid var(--green);
   box-shadow: 
-    0 20px 42px rgba(0, 0, 0, 0.8),
-    0 0 28px rgba(100, 255, 218, 0.2);
+    0 18px 38px var(--navy-shadow),
+    0 0 20px var(--green-tint-hover);
 }
 
 /* Upper Card (Offset -1) - Scaled down, translated up, slower feel */
 .vertical-carousel-card.is-upper-1 {
   transform: translate3d(0, -112px, -30px) scale(0.81) rotateX(-8deg);
-  opacity: 0.55;
+  opacity: 0.58;
   z-index: 8;
-  filter: brightness(0.65) blur(0.5px);
+  filter: brightness(0.8) blur(0.5px);
   cursor: pointer;
 }
 
 .vertical-carousel-card.is-upper-1:hover {
-  opacity: 0.85;
-  filter: brightness(0.85);
+  opacity: 0.88;
+  filter: brightness(0.95);
   transform: translate3d(0, -108px, -20px) scale(0.83) rotateX(-5deg);
 }
 
 .vertical-carousel-card.is-upper-1 .carousel-card-inner {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-default);
+}
+
+.vertical-carousel-card.is-upper-1:hover .carousel-card-inner {
+  border-color: var(--border-hover);
 }
 
 /* Lower Card (Offset +1) - Scaled down, translated down */
 .vertical-carousel-card.is-lower-1 {
   transform: translate3d(0, 112px, -30px) scale(0.81) rotateX(8deg);
-  opacity: 0.55;
+  opacity: 0.58;
   z-index: 8;
-  filter: brightness(0.65) blur(0.5px);
+  filter: brightness(0.8) blur(0.5px);
   cursor: pointer;
 }
 
 .vertical-carousel-card.is-lower-1:hover {
-  opacity: 0.85;
-  filter: brightness(0.85);
+  opacity: 0.88;
+  filter: brightness(0.95);
   transform: translate3d(0, 108px, -20px) scale(0.83) rotateX(5deg);
 }
 
 .vertical-carousel-card.is-lower-1 .carousel-card-inner {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-default);
+}
+
+.vertical-carousel-card.is-lower-1:hover .carousel-card-inner {
+  border-color: var(--border-hover);
 }
 
 /* Upper 2 (Offset -2) */
 .vertical-carousel-card.is-upper-2 {
   transform: translate3d(0, -190px, -90px) scale(0.66) rotateX(-15deg);
-  opacity: 0.18;
+  opacity: 0.22;
   z-index: 5;
-  filter: brightness(0.4) blur(1.5px);
+  filter: brightness(0.6) blur(1.5px);
   cursor: pointer;
+}
+
+.vertical-carousel-card.is-upper-2 .carousel-card-inner {
+  border: 1px solid var(--border-default);
 }
 
 /* Lower 2 (Offset +2) */
 .vertical-carousel-card.is-lower-2 {
   transform: translate3d(0, 190px, -90px) scale(0.66) rotateX(15deg);
-  opacity: 0.18;
+  opacity: 0.22;
   z-index: 5;
-  filter: brightness(0.4) blur(1.5px);
+  filter: brightness(0.6) blur(1.5px);
   cursor: pointer;
+}
+
+.vertical-carousel-card.is-lower-2 .carousel-card-inner {
+  border: 1px solid var(--border-default);
 }
 
 /* Off-screen hidden cards */
@@ -2626,15 +2646,16 @@ body.modal-open {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(17, 34, 64, 0.85);
+  background: var(--light-navy);
   border: 1px solid var(--border-default);
-  color: var(--lightest-slate);
+  color: var(--light-slate);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px var(--navy-shadow);
 }
 
 .vertical-carousel-arrow:hover:not(.disabled) {
@@ -2661,11 +2682,12 @@ body.modal-open {
   align-items: center;
   gap: 6px;
   z-index: 25;
-  padding: 6px 3px;
-  background: rgba(10, 25, 47, 0.55);
+  padding: 6px 4px;
+  background: rgba(var(--navy-rgb), 0.75);
   border-radius: 12px;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-default);
+  box-shadow: 0 4px 12px var(--navy-shadow);
   max-height: 220px;
   overflow-y: auto;
 }
@@ -2675,10 +2697,11 @@ body.modal-open {
 }
 
 .vertical-carousel-nav-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--slate);
+  opacity: 0.45;
   border: none;
   padding: 0;
   cursor: pointer;
@@ -2686,15 +2709,17 @@ body.modal-open {
 }
 
 .vertical-carousel-nav-dot:hover {
-  background: rgba(100, 255, 218, 0.7);
-  transform: scale(1.4);
+  background: var(--green);
+  opacity: 0.9;
+  transform: scale(1.35);
 }
 
 .vertical-carousel-nav-dot.active {
   background: var(--green);
+  opacity: 1;
   height: 14px;
   border-radius: 3px;
-  box-shadow: 0 0 8px rgba(100, 255, 218, 0.6);
+  box-shadow: 0 0 8px var(--green);
 }
 
 /* Bottom Footer Bar */
@@ -2715,11 +2740,11 @@ body.modal-open {
   align-items: center;
   gap: 8px;
   padding: 5px 12px;
-  background: rgba(10, 25, 47, 0.88);
+  background: var(--light-navy);
   border: 1px solid var(--border-default);
   border-radius: 20px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 14px var(--navy-shadow);
   pointer-events: auto;
   max-width: 75%;
 }
@@ -2736,7 +2761,7 @@ body.modal-open {
 .carousel-image-name {
   font-family: var(--font-sans);
   font-size: 12px;
-  color: var(--lightest-slate);
+  color: var(--light-slate);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -2747,9 +2772,24 @@ body.modal-open {
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--slate);
-  opacity: 0.75;
+  opacity: 0.85;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+@media (max-width: 600px) {
+  .carousel-scroll-hint {
+    display: none;
+  }
+  .project-modal-vertical-carousel {
+    height: 360px;
+  }
+  .vertical-carousel-card.is-upper-1 {
+    transform: translate3d(0, -90px, -25px) scale(0.8) rotateX(-6deg);
+  }
+  .vertical-carousel-card.is-lower-1 {
+    transform: translate3d(0, 90px, -25px) scale(0.8) rotateX(6deg);
+  }
 }
 
 @media (max-width: 600px) {

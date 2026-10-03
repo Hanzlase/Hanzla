@@ -1,29 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 115" width="100%" height="100%">
   <style>
     polygon {
-      stroke: #c86246;
+      stroke: #64ffda;
       stroke-width: 6;
       stroke-linecap: round;
       stroke-linejoin: round;
-      fill: #f9f6f0;
+      fill: #0a192f;
     }
     text {
-      fill: #c86246;
+      fill: #64ffda;
       font-size: 44px;
-      font-family: 'Fira Code', 'Source Code Pro', monospace;
+      font-family: 'Fira Code', 'Source Code Pro', monospace, sans-serif;
       font-weight: 600;
       text-anchor: middle;
     }
-    @media (prefers-color-scheme: dark) {
+    @media (prefers-color-scheme: light) {
       polygon {
-        stroke: #dd7a5f;
-        fill: #121214;
+        stroke: #0a192f;
+        fill: #64ffda;
       }
       text {
-        fill: #dd7a5f;
+        fill: #0a192f;
       }
     }
   </style>
   <polygon points="50,6 93,29.5 93,76.5 50,100 7,76.5 7,29.5" />
-  <text x="50" y="72">S</text>
+  <text x="50" y="72">H</text>
 </svg>
